@@ -1,31 +1,24 @@
-const http =  require('http')
+const express = require('express')
+const dotenv = require('dotenv')
+const morgan = require('morgan')
 
-const mock  = [
-    { id: 1, text: 'hi 1'},
-    { id: 2, text: 'hi 2'},
-    { id: 3, text: 'hi 3'}
-]
+//Routes
+const clientes = require('./routes/clientes')
 
-const server = http.createServer( (req, res) => {
-    // res.statusCode = 404
-    // res.setHeader('Content-type', 'application/json')
+dotenv.config({ path: './config/config.env' })
 
-    res.writeHead(404, {
-        'Content-type': 'application/json'
-    })
+const app = express()
 
-    let body = []
-    req.on('data', chunk => {
-        body.push(chunk)
-    }).on('end', () => {
-        body = Buffer.concat(body).toString()
-        console.log(body)
-    })
+//dev log middleware
+if(process.env.NODE_ENV === "development") {
+    app.use(morgan('dev'))
+}
 
-    res.end(JSON.stringify({
-        success: false,
-        data: mock
-    }))
-})
+// montar rotas
 
-server.listen(5000, () => console.log("server running"))
+app.use('/api/v1/clientes', clientes)
+
+
+const PORT = process.env.PORT || 5000
+
+app.listen(PORT, console.log( `Server running`))
